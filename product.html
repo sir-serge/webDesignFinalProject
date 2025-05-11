@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PharmaCare - Product Catalog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Extend Tailwind config to match pharmacist color scheme
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0a4275',
+            accent: '#56d799',
+            lightBg: '#f5f7fa',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      font-family: 'Arial', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-lightBg text-gray-800">
+
+  <!-- Navbar -->
+  <header class="bg-primary text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <h1 class="text-2xl font-bold flex items-center">💊 Pharma<span class="text-accent ml-1">Care</span></h1>
+      <nav class="space-x-6">
+        <a href="clientHomepage.html" class="hover:text-accent">Home</a>
+        <a href="#contact" class="hover:text-accent">Contact</a>
+        <a href="cart.html" class="hover:text-accent">Cart</a>
+        <a href="index.html" class="bg-accent text-primary px-4 py-2 rounded font-medium hover:bg-opacity-90 ml-4">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Search & Filter -->
+  <section class="bg-white shadow p-4">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-between">
+      <input type="text" placeholder="Search for medicines..." class="w-full md:w-1/2 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+      <select class="w-full md:w-1/4 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+        <option value="">All Categories</option>
+        <option>Men</option>
+        <option>Women</option>
+        <option>Children</option>
+        <option>Allergy & Cold</option>
+        <option>Pain Relief</option>
+        <option>Vitamins & Supplements</option>
+        <option>Skin Care</option>
+        <option>Digestive Health</option>
+        <option>Heart Health</option>
+        <option>Diabetes Care</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Products -->
+  <main class="max-w-7xl mx-auto px-4 py-10">
+    <h2 class="text-3xl font-bold text-primary mb-6">Our Products</h2>
+
+    <!-- Template for 10 categories -->
+    <script>
+      const categories = {
+        "Men": ["Men's Multivitamin", "Hair Growth Serum", "Energy Booster", "Beard Oil", "Protein Powder", "Men's Shampoo", "Testosterone Support", "Joint Support", "Men's Daily Pack", "Hair & Beard Combo"],
+        "Women": ["Women's Wellness Pack", "Prenatal Vitamins", "Hair & Skin Capsules", "Iron Supplement", "Calcium Chews", "Multivitamin Gummies", "Collagen Booster", "Hormonal Balance", "Skin Brightening Cream", "Women's Daily Pack"],
+        "Children": ["Children's Multivitamins", "Kids Cold Relief Syrup", "Vitamin C Gummies", "Cough Syrup", "Diaper Cream", "Allergy Tablets", "Kids Probiotic", "Children's Pain Relief", "Baby Shampoo", "Teething Gel"],
+        "Allergy & Cold": ["Antihistamine Tablets", "Cold Relief Syrup", "Decongestant Spray", "Allergy Relief Capsules", "Nasal Drops", "Sinus Relief", "Hay Fever Tablets", "Allergy Nasal Spray", "Kids Allergy Syrup", "Allergy Eye Drops"],
+        "Pain Relief": ["Ibuprofen", "Paracetamol", "Aspirin", "Pain Relief Gel", "Arthritis Cream", "Migraine Tablets", "Back Pain Patches", "Muscle Relaxant", "Headache Roll-on", "Knee Pain Balm"],
+        "Vitamins & Supplements": ["Vitamin D3", "Vitamin C", "Vitamin B Complex", "Magnesium Supplement", "Zinc Tablets", "Fish Oil", "Calcium Tablets", "Probiotic Capsules", "Immune Booster", "Antioxidant Blend"],
+        "Skin Care": ["Acne Cream", "Anti-Aging Serum", "Moisturizing Lotion", "Sunscreen SPF 50", "Dry Skin Cream", "Ointment for Eczema", "Face Wash", "Aloe Vera Gel", "Scar Remover", "Night Cream"],
+        "Digestive Health": ["Probiotic Supplement", "Digestive Enzyme", "Antacid Tablets", "Gas Relief Capsules", "Bloating Relief", "Laxative", "IBS Support", "Fiber Gummies", "Stomach Soothing Tea", "Diarrhea Relief"],
+        "Heart Health": ["Omega-3 Fish Oil", "Cholesterol Support", "Heart Multivitamin", "Blood Pressure Supplement", "CoQ10", "Aspirin (Low Dose)", "Cardio Formula", "Heartburn Relief", "Potassium Supplement", "Heart Tonic"],
+        "Diabetes Care": ["Glucose Monitor", "Blood Sugar Strips", "Insulin Pen Needles", "Diabetic Multivitamin", "Foot Cream", "Low GI Snacks", "Diabetes Test Kit", "Sugar-Free Syrup", "Chromium Supplement", "Glucose Tablets"]
+      };
+
+      Object.entries(categories).forEach(([category, products]) => {
+        document.write(`
+          <section class="mb-12">
+            <h3 class="text-2xl font-semibold text-primary mb-6">${category}</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        `);
+        products.forEach(product => {
+          const price = (Math.random() * 20 + 5).toFixed(2);
+          document.write(`
+            <div class="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <img src="images.jpeg" alt="${product}" class="w-full h-48 object-cover">
+              <div class="p-4">
+                <h3 class="text-lg font-semibold mb-2">${product}</h3>
+                <p class="text-primary font-bold mb-3">$${price}</p>
+                <button class="w-full bg-primary text-white py-2 rounded hover:bg-opacity-90 transition-colors duration-300">Add to Cart</button>
+              </div>
+            </div>
+          `);
+        });
+        document.write(`</div></section>`);
+      });
+    </script>
+  </main>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-16 bg-primary bg-opacity-5">
+    <div class="container mx-auto px-4 text-center">
+      <h3 class="text-3xl font-semibold mb-4 text-primary">Contact Us</h3>
+      <p class="mb-2">Email: <a href="mailto:support@pharmacare.com" class="text-primary hover:text-accent">support@pharmacare.com</a> | Phone: <a href="tel:+12345678901" class="text-primary hover:text-accent">+1 234 567 890</a></p>
+      <p>123 Wellness Ave, Healthy City, HC 12345</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-primary text-white text-center py-6">
+    <p>&copy; 2025 PharmaCare. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,201 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'client') {
+    header('Location: index.html');
+    exit();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PharmaCare - Client Homepage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    // Extend Tailwind config to match pharmacist color scheme
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0a4275',
+            accent: '#56d799',
+            lightBg: '#f5f7fa',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      font-family: 'Arial', sans-serif;
+    }
+    
+    h5 {
+      white-space: normal;
+      overflow: hidden;
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body class="bg-lightBg text-gray-800">
+
+  <!-- Navbar -->
+  <header class="bg-primary text-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <h1 class="text-2xl font-bold flex items-center">💊 Pharma<span class="text-accent ml-1">Care</span></h1>
+      <nav class="space-x-6 hidden md:block">
+        <a href="clientHomepage.php" class="hover:text-accent">Home</a>
+        <a href="product.html" class="hover:text-accent">Products</a>
+        <a href="#services" class="hover:text-accent">Services</a>
+        <a href="#contact" class="hover:text-accent">Contact</a>
+        <a href="#" onclick="logout()" class="bg-accent text-primary px-4 py-2 rounded font-medium hover:bg-opacity-90 ml-4">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="bg-primary bg-opacity-5 py-20">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-4xl font-bold mb-4 text-primary">Welcome to PharmaCare</h2>
+      <p class="text-lg mb-6">Your trusted online pharmacy for prescriptions, wellness products, and more.</p>
+      <a href="#products" class="bg-primary text-white px-6 py-3 rounded hover:bg-opacity-90 transition">Shop Now</a>
+    </div>
+  </section>
+
+  <!-- Featured Products -->
+  <section id="products" class="py-16">
+    <div class="container mx-auto px-4">
+      <h3 class="text-3xl font-semibold mb-10 text-center text-primary">Featured Products</h3>
+
+      <script>
+        function createScrollableRow(title, products) {
+          document.write(`
+            <h4 class="text-2xl font-semibold mb-4 text-primary">${title}</h4>
+            <div class="overflow-x-auto whitespace-nowrap mb-12 pb-2">
+              <div class="inline-flex gap-6">
+                ${products.map(p => `
+                  <a href="product.html" class="block">
+                    <div class="bg-white shadow p-4 rounded-lg w-64 inline-block hover:shadow-lg transition">
+                      <img src="images.jpeg" alt="${p.name}" class="mx-auto mb-4">
+                      <h5 class="font-semibold text-lg mb-1 text-center break-words">${p.name}</h5>
+                      <p class="text-gray-600 mb-2 text-center">${p.price}</p>
+                      <div class="text-center">
+                        <button class="bg-primary text-white px-3 py-2 rounded hover:bg-opacity-90 transition">Add to Cart</button>
+                      </div>
+                    </div>
+                  </a>
+                `).join('')}
+              </div>
+            </div>
+          `);
+        }
+      </script>
+
+      <!-- Men -->
+      <script>
+        createScrollableRow("For Men", [
+          { name: "Men's Multivitamin", price: "$14.99" },
+          { name: "Hair Growth Serum", price: "$19.99" },
+          { name: "Men's Energy Booster", price: "$18.49" },
+          { name: "Beard Oil", price: "$12.99" },
+          { name: "Protein Powder", price: "$24.99" },
+          { name: "Men's Shampoo", price: "$8.99" }
+        ]);
+      </script>
+
+      <!-- Women -->
+      <script>
+        createScrollableRow("For Women", [
+          { name: "Women's Wellness Pack", price: "$16.49" },
+          { name: "Prenatal Vitamins", price: "$11.99" },
+          { name: "Hair & Skin Capsules", price: "$15.99" },
+          { name: "Iron Supplement", price: "$9.99" },
+          { name: "Calcium Chews", price: "$13.49" },
+          { name: "Women's Multivitamin Gummies", price: "$10.99" }
+        ]);
+      </script>
+
+      <!-- Children -->
+      <script>
+        createScrollableRow("For Children", [
+          { name: "Children's Multivitamins", price: "$9.99" },
+          { name: "Kids Cold Relief Syrup", price: "$7.49" },
+          { name: "Vitamin C Gummies", price: "$8.50" },
+          { name: "Children's Cough Syrup", price: "$6.99" },
+          { name: "Baby Diaper Cream", price: "$5.99" },
+          { name: "Kids Allergy Tablets", price: "$7.25" }
+        ]);
+      </script>
+
+      <!-- Others -->
+      <script>
+        createScrollableRow("Others", [
+          { name: "Allergy Relief Spray", price: "$9.75" },
+          { name: "Hand Sanitizer", price: "$2.99" },
+          { name: "Thermometer", price: "$11.99" },
+          { name: "Pain Relief Gel", price: "$4.99" },
+          { name: "First Aid Kit", price: "$15.99" },
+          { name: "Face Masks (50 pcs)", price: "$12.50" }
+        ]);
+      </script>
+
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="bg-white py-16">
+    <div class="container mx-auto px-4">
+      <h3 class="text-3xl font-semibold mb-8 text-center text-primary">Our Services</h3>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+          <div class="text-4xl mb-4 text-primary mx-auto">📋</div>
+          <h4 class="text-xl font-semibold mb-2 text-primary">Prescription Refills</h4>
+          <p class="text-gray-600">Refill your prescriptions online with ease and convenience.</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+          <div class="text-4xl mb-4 text-primary mx-auto">🚚</div>
+          <h4 class="text-xl font-semibold mb-2 text-primary">Home Delivery</h4>
+          <p class="text-gray-600">Fast and reliable delivery right to your doorstep.</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+          <div class="text-4xl mb-4 text-primary mx-auto">👨‍⚕️</div>
+          <h4 class="text-xl font-semibold mb-2 text-primary">Pharmacist Consultation</h4>
+          <p class="text-gray-600">Speak with licensed pharmacists anytime for advice and support.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-16 bg-primary bg-opacity-5">
+    <div class="container mx-auto px-4 text-center">
+      <h3 class="text-3xl font-semibold mb-4 text-primary">Contact Us</h3>
+      <p class="mb-2">Email: <a href="mailto:support@pharmacare.com" class="text-primary hover:text-accent">support@pharmacare.com</a> | Phone: <a href="tel:+12345678901" class="text-primary hover:text-accent">+1 234 567 890</a></p>
+      <p>123 Wellness Ave, Healthy City, HC 12345</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-primary text-white text-center py-6">
+    <p>&copy; 2025 PharmaCare. All rights reserved.</p>
+  </footer>
+
+  <script>
+  function logout() {
+      // Clear any session data
+      fetch('handlers/logout_handler.php')
+      .then(response => {
+          // Redirect to index.html after logout
+          window.location.href = 'index.html';
+      })
+      .catch(error => {
+          console.error('Logout failed:', error);
+      });
+  }
+  </script>
+
+</body>
+</html>

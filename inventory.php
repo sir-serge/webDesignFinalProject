@@ -1,0 +1,997 @@
+<?php
+session_start();
+
+// Check if user is logged in and is a pharmacist
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'pharmacist') {
+    header("Location: index.php");
+    exit();
+}
+
+$userName = $_SESSION['name'] ?? 'Unknown';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaSys - Inventory Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: #0a4275;
+            color: white;
+            padding: 10px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo span {
+            color: #56d799;
+            margin-left: 5px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 20px;
+            position: relative;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 0;
+            display: block;
+        }
+        
+        nav ul li a:hover {
+            color: #56d799;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #56d799;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        /* Sidebar */
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: #fff;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            position: sticky;
+            top: 60px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu li a {
+            padding: 12px 20px;
+            display: block;
+            color: #555;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active {
+            background-color: #f0f7ff;
+            color: #0a4275;
+            border-left-color: #0a4275;
+        }
+        
+        .sidebar-menu li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #0a4275;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title button {
+            background-color: #0a4275;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-title button i {
+            margin-right: 5px;
+        }
+
+        /* Inventory Summary Cards */
+        .inventory-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .summary-card h3 {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .summary-card .summary-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0a4275;
+        }
+        
+        .summary-card .summary-details {
+            font-size: 14px;
+            margin-top: 5px;
+            color: #666;
+        }
+        
+        /* Filter and Search Section */
+        .inventory-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .inventory-search {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .inventory-filters {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            min-width: 150px;
+        }
+        
+        /* Inventory Table */
+        .inventory-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            color: #0a4275;
+        }
+        
+        .inventory-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-button {
+            padding: 8px 12px;
+            background-color: #f0f7ff;
+            color: #0a4275;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .inventory-table th {
+            text-align: left;
+            padding: 12px;
+            background-color: #f8f9fa;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .inventory-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .inventory-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .medication-name {
+            font-weight: 500;
+        }
+        
+        .medication-generic {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .stock-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        
+        .stock-normal {
+            background-color: #e8f5e9;
+            color: #4caf50;
+        }
+        
+        .stock-low {
+            background-color: #fff8e1;
+            color: #ffc107;
+        }
+        
+        .stock-critical {
+            background-color: #ffebee;
+            color: #ff5252;
+        }
+        
+        .stock-overstock {
+            background-color: #e3f2fd;
+            color: #2196f3;
+        }
+        
+        .row-actions a {
+            margin-right: 8px;
+            color: #0a4275;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        /* Order Section */
+        .orders-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .order-list {
+            list-style: none;
+        }
+        
+        .order-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .order-info h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .order-details {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .order-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .status-pending {
+            background-color: #fff8e1;
+            color: #ffc107;
+        }
+        
+        .status-shipped {
+            background-color: #e3f2fd;
+            color: #2196f3;
+        }
+        
+        .status-delivered {
+            background-color: #e8f5e9;
+            color: #4caf50;
+        }
+        
+        /* Expiry Tracking Section */
+        .expiry-list {
+            list-style: none;
+        }
+        
+        .expiry-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: #fff;
+            border-left: 4px solid;
+        }
+        
+        .expiry-critical {
+            border-left-color: #ff5252;
+            background-color: #ffebee;
+        }
+        
+        .expiry-warning {
+            border-left-color: #ffc107;
+            background-color: #fff8e1;
+        }
+        
+        .expiry-approaching {
+            border-left-color: #2196f3;
+            background-color: #e3f2fd;
+        }
+        
+        .expiry-item h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .expiry-details {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .expiry-date {
+            font-weight: 500;
+        }
+        
+        /* Two-column layout for bottom sections */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .inventory-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+                overflow: visible;
+            }
+            
+            .sidebar-menu li a span {
+                display: none;
+            }
+            
+            .sidebar-menu li a i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .inventory-summary {
+                grid-template-columns: 1fr;
+            }
+            
+            .inventory-controls {
+                flex-direction: column;
+            }
+            
+            nav ul {
+                display: none;
+            }
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+    
+        .pagination a {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 5px;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #0a4275;
+            text-decoration: none;
+            border: 1px solid #eee;
+        }
+    
+        .pagination a.active {
+            background-color: #0a4275;
+            color: #fff;
+            border-color: #0a4275;
+        }
+    
+        .pagination a:hover:not(.active) {
+            background-color: #f0f7ff;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .btn-primary {
+            background-color: #0a4275;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-primary:hover {
+            background-color: #083a63;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Add new styles here */
+        .form-alert {
+            display: none;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        #removeMedicineForm .form-group {
+            margin-bottom: 15px;
+        }
+
+        #removeMedicineForm select,
+        #removeMedicineForm input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+
+        #removeMedicineForm .btn-danger {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        #removeQuantity {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Add this right after the body tag -->
+    <div id="addMedicineModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Medication</h2>
+            <form id="addMedicineForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="medication">Medication Name</label>
+                    <input type="text" id="medication" name="medication" required>
+                </div>
+                <div class="form-group">
+                    <label for="ndc">NDC</label>
+                    <input type="text" id="ndc" name="ndc" pattern="[0-9]+" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Antibiotics">Antibiotics</option>
+                        <option value="Antihypertensives">Antihypertensives</option>
+                        <option value="Analgesics">Analgesics</option>
+                        <option value="Antidiabetics">Antidiabetics</option>
+                        <option value="Statins">Statins</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="stock">Stock Units</label>
+                    <input type="number" id="stock" name="stock" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="reorderPoint">Reorder Point</label>
+                    <input type="number" id="reorderPoint" name="reorderPoint" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="unitPrice">Unit Price</label>
+                    <input type="number" id="unitPrice" name="unitPrice" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="expiryDate">Expiry Date</label>
+                    <input type="date" id="expiryDate" name="expiryDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="image">Product Image</label>
+                    <input type="file" id="image" name="image" accept=".jpg,.jpeg,.png" required>
+                </div>
+                <button type="submit" class="btn-primary">Add Medication</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="removeMedicineModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Remove Medication</h2>
+            <form id="removeMedicineForm">
+                <div class="form-group">
+                    <label for="removeMedication">Select Medication</label>
+                    <select id="removeMedication" name="medication" required>
+                        <option value="">Choose medication to remove</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="removeQuantity">Quantity to Remove</label>
+                    <div class="quantity-controls">
+                        <input type="number" id="removeQuantity" name="quantity" min="1" required>
+                        <button type="button" id="removeAllBtn" class="btn-secondary">Remove All</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="removeReason">Reason for Removal</label>
+                    <select id="removeReason" name="reason" required>
+                        <option value="">Select reason</option>
+                        <option value="expired">Expired</option>
+                        <option value="damaged">Damaged/Defective</option>
+                        <option value="recalled">Recalled by Manufacturer</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group" id="otherReasonGroup" style="display: none;">
+                    <label for="otherReason">Specify Other Reason</label>
+                    <input type="text" id="otherReason" name="otherReason">
+                </div>
+                <div class="form-alert"></div>
+                <button type="submit" class="btn-danger">Remove Medication</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                💊 Pharma<span>care</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="pharmacistHomepage.php">Dashboard</a></li>
+                    <li><a href="patient.php">Patients</a></li>
+                    <li><a href="inventory.php" class="active">Inventory</a></li>
+                    <li><a href="report.php">Reports</a></li>
+                </ul>
+            </nav>
+            <div class="user-menu">
+                <div><?php echo htmlspecialchars($userName); ?></div>
+                <div class="user-avatar">
+                    <?php
+                        $nameParts = explode(" ", $userName);
+                        $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 1));
+                        echo htmlspecialchars($initials);
+                    ?>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="pharmacistHomepage.php"><i>📊</i> <span>Dashboard</span></a></li>
+                <li><a href="patient.php"><i>👥</i> <span>Patient Records</span></a></li>
+                <li><a href="inventory.php" class="active"><i>💊</i> <span>Medication Inventory</span></a></li>
+                <li><a href="report.php"><i>📊</i> <span>Reports</span></a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-title">
+                <h1>Medication Inventory</h1>
+                <div class="action-buttons">
+                    <button id="addMedicationBtn"><i>➕</i> Add New Medication</button>
+                    <button id="removeMedicationBtn" class="btn-danger"><i>➖</i> Remove Medication</button>
+                </div>
+            </div>
+            
+            <!-- Inventory Summary Cards -->
+            <div class="inventory-summary">
+                <div class="summary-card">
+                    <h3>Total Medications</h3>
+                    <div class="summary-value">0</div>
+                    <div class="summary-details">Loading...</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Stock Value</h3>
+                    <div class="summary-value">$0.00</div>
+                    <div class="summary-details">Loading...</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Low Stock Items</h3>
+                    <div class="summary-value">0</div>
+                    <div class="summary-details">Loading...</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Expiring Soon</h3>
+                    <div class="summary-value">0</div>
+                    <div class="summary-details">Loading...</div>
+                </div>
+            </div>
+            
+            <!-- Filter and Search -->
+            <div class="inventory-controls">
+                <div class="inventory-search">
+                    <input type="text" class="search-input" placeholder="Search medications by name, NDC, or manufacturer...">
+                </div>
+                <div class="inventory-filters">
+                    <select class="filter-select">
+                        <option>All Categories</option>
+                        <option>Antibiotics</option>
+                        <option>Antihypertensives</option>
+                        <option>Analgesics</option>
+                        <option>Antidiabetics</option>
+                        <option>Statins</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>All Stock Levels</option>
+                        <option>Normal</option>
+                        <option>Low Stock</option>
+                        <option>Critical</option>
+                        <option>Overstock</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Inventory Table -->
+            <div class="inventory-section">
+                <div class="section-header">
+                    <h2 class="section-title">Medication List</h2>
+                    <div class="inventory-actions">
+                        <button class="action-button">Export</button>
+                        <button class="action-button">Print</button>
+                    </div>
+                </div>
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Medication</th>
+                            <th>NDC</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>Reorder Point</th>
+                            <th>Unit Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Medications will be loaded dynamically -->
+                    </tbody>
+                </table>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <a href="#">&laquo;</a>
+                    <a href="#" class="active">1</a>
+                    <a href="#">2</a>
+                    <a href="#">3</a>
+                    <a href="#">4</a>
+                    <a href="#">5</a>
+                    <a href="#">&raquo;</a>
+                </div>
+            </div>
+            
+            <!-- Two-column layout for additional sections -->
+            <div class="inventory-grid">
+                <!-- Orders Section -->
+                <div class="orders-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Orders</h2>
+                        <a href="#" class="view-all">Place New Order</a>
+                    </div>
+                    <ul class="order-list">
+                        <li class="order-item">
+                            <div class="order-info">
+                                <h4>Order #ORD-2023-0542</h4>
+                                <div class="order-details">
+                                    <div>McKesson Medical Supply</div>
+                                    <div>5 medications, $1,245.60</div>
+                                </div>
+                            </div>
+                            <span class="order-status status-shipped">Shipped</span>
+                        </li>
+                        <li class="order-item">
+                            <div class="order-info">
+                                <h4>Order #ORD-2023-0541</h4>
+                                <div class="order-details">
+                                    <div>Cardinal Health</div>
+                                    <div>8 medications, $2,374.25</div>
+                                </div>
+                            </div>
+                            <span class="order-status status-delivered">Delivered</span>
+                        </li>
+                        <li class="order-item">
+                            <div class="order-info">
+                                <h4>Order #ORD-2023-0540</h4>
+                                <div class="order-details">
+                                    <div>AmerisourceBergen</div>
+                                    <div>3 medications, $865.40</div>
+                                </div>
+                            </div>
+                            <span class="order-status status-pending">Pending</span>
+                        </li>
+                        <li class="order-item">
+                            <div class="order-info">
+                                <h4>Order #ORD-2023-0539</h4>
+                                <div class="order-details">
+                                    <div>McKesson Medical Supply</div>
+                                    <div>10 medications, $3,156.75</div>
+                                </div>
+                            </div>
+                            <span class="order-status status-delivered">Delivered</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Expiry Tracking Section -->
+                <div class="orders-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Expiration Tracking</h2>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <ul class="expiry-list">
+                        <li class="expiry-item expiry-critical">
+                            <h4>Amoxicillin 500mg</h4>
+                            <div class="expiry-details">
+                                <div>Lot: AMX-23456</div>
+                                <div class="expiry-date">Expires: 05/12/2023</div>
+                            </div>
+                        </li>
+                        <li class="expiry-item expiry-critical">
+                            <h4>Ciprofloxacin 250mg</h4>
+                            <div class="expiry-details">
+                                <div>Lot: CIP-34521</div>
+                                <div class="expiry-date">Expires: 05/18/2023</div>
+                            </div>
+                        </li>
+                        <li class="expiry-item expiry-warning">
+                            <h4>Atorvastatin 10mg</h4>
+                            <div class="expiry-details">
+                                <div>Lot: ATV-78945</div>
+                                <div class="expiry-date">Expires: 06/05/2023</div>
+                            </div>
+                        </li>
+                        <li class="expiry-item expiry-warning">
+                            <h4>Metformin 850mg</h4>
+                            <div class="expiry-details">
+                                <div>Lot: MTF-65432</div>
+                                <div class="expiry-date">Expires: 06/22/2023</div>
+                            </div>
+                        </li>
+                        <li class="expiry-item expiry-approaching">
+                            <h4>Lisinopril 5mg</h4>
+                            <div class="expiry-details">
+                                <div>Lot: LSP-12345</div>
+                                <div class="expiry-date">Expires: 07/15/2023</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/inventory.js"></script>
+</body>
+</html>
