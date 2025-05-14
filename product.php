@@ -1,11 +1,57 @@
 <?php
 session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Get user information from session if logged in
-$userName = $_SESSION['name'] ?? 'Guest';
-$isLoggedIn = isset($_SESSION['user_id']);
+// Check if user is logged in - UPDATED CHECK
+// We need to check for both old and new session structures
+$isLoggedIn = isset($_SESSION['phone']) || isset($_SESSION['user_id']);
+$userPhone = isset($_SESSION['phone']) ? $_SESSION['phone'] : 
+             (isset($_SESSION['user_id']) && $_SESSION['user_type'] == 'client' ? $_SESSION['user_id'] : null);
+
+// Debug session (uncomment to check session variables)
+// echo "<pre>";
+// var_dump($_SESSION);
+// echo "</pre>";
+
+if ($isLoggedIn) {
+    error_log("User logged in with ID: " . $userPhone);
+} else {
+    error_log("No user session found");
+    // You might want to redirect here if you want to force login
+    // header("Location: index.html");
+    // exit;
+}
 
 require_once 'config/db.php';
+
+function getMedicinesByCategory() {
+    global $conn;
+    try {
+        $stmt = $conn->prepare("
+            SELECT medication_name, category, unit_price, image_path, ndc 
+            FROM medicine 
+            WHERE status = 'available'
+            ORDER BY category, medication_name
+        ");
+        $stmt->execute();
+        $medicines = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $category = $row['category'];
+            if (!isset($medicines[$category])) {
+                $medicines[$category] = [];
+            }
+            $medicines[$category][] = $row;
+        }
+        return $medicines;
+    } catch (PDOException $e) {
+        error_log("Error fetching medicines: " . $e->getMessage());
+        return [];
+    }
+}
+
+// Get prices from database
+$medicinePrices = getMedicinesByCategory();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -52,7 +98,10 @@ require_once 'config/db.php';
       text-decoration: none;
       font-weight: 500;
     }
-
+        nav ul li a.active {
+          color: #56d799;
+          border-bottom: 2px solid #56d799;
+        }
     header nav a:hover {
       color: #56d799;
     }
@@ -218,10 +267,15 @@ require_once 'config/db.php';
     <div class="nav-container">
       <h1>💊 Pharma<span style="color:#56d799;">Care</span></h1>
       <nav>
-        <a href="clientHomepage.html">Home</a>
+        <a href="clientHomepage.php">Home</a>
+        <a href="product.php" class="active">Products</a>
         <a href="#contact">Contact</a>
-        <a href="cart.html">Cart</a>
-        <a href="index.html" class="login-btn">Login</a>
+        <a href="cart.php">Cart</a>
+        <?php if ($isLoggedIn): ?>
+            <a href="handlers/logout.php" class="login-btn">Logout</a>
+        <?php else: ?>
+            <a href="index.html" class="login-btn">Login</a>
+        <?php endif; ?>
       </nav>
     </div>
   </header>
@@ -229,8 +283,8 @@ require_once 'config/db.php';
   <!-- Search & Filter -->
   <section class="search-section">
     <div class="search-container">
-      <input type="text" placeholder="Search for medicines...">
-      <select>
+      <input type="text" id="search-input" placeholder="Search for medicines...">
+      <select id="category-filter">
         <option value="">All Categories</option>
         <option>Men</option>
         <option>Women</option>
@@ -249,38 +303,31 @@ require_once 'config/db.php';
   <!-- Products -->
   <main>
     <h2>Our Products</h2>
-    <script>
-      const categories = {
-        "Men": ["Men's Multivitamin", "Hair Growth Serum", "Energy Booster", "Beard Oil", "Protein Powder", "Men's Shampoo", "Testosterone Support", "Joint Support", "Men's Daily Pack", "Hair & Beard Combo"],
-        "Women": ["Women's Wellness Pack", "Prenatal Vitamins", "Hair & Skin Capsules", "Iron Supplement", "Calcium Chews", "Multivitamin Gummies", "Collagen Booster", "Hormonal Balance", "Skin Brightening Cream", "Women's Daily Pack"],
-        "Children": ["Children's Multivitamins", "Kids Cold Relief Syrup", "Vitamin C Gummies", "Cough Syrup", "Diaper Cream", "Allergy Tablets", "Kids Probiotic", "Children's Pain Relief", "Baby Shampoo", "Teething Gel"],
-        "Allergy & Cold": ["Antihistamine Tablets", "Cold Relief Syrup", "Decongestant Spray", "Allergy Relief Capsules", "Nasal Drops", "Sinus Relief", "Hay Fever Tablets", "Allergy Nasal Spray", "Kids Allergy Syrup", "Allergy Eye Drops"],
-        "Pain Relief": ["Ibuprofen", "Paracetamol", "Aspirin", "Pain Relief Gel", "Arthritis Cream", "Migraine Tablets", "Back Pain Patches", "Muscle Relaxant", "Headache Roll-on", "Knee Pain Balm"],
-        "Vitamins & Supplements": ["Vitamin D3", "Vitamin C", "Vitamin B Complex", "Magnesium Supplement", "Zinc Tablets", "Fish Oil", "Calcium Tablets", "Probiotic Capsules", "Immune Booster", "Antioxidant Blend"],
-        "Skin Care": ["Acne Cream", "Anti-Aging Serum", "Moisturizing Lotion", "Sunscreen SPF 50", "Dry Skin Cream", "Ointment for Eczema", "Face Wash", "Aloe Vera Gel", "Scar Remover", "Night Cream"],
-        "Digestive Health": ["Probiotic Supplement", "Digestive Enzyme", "Antacid Tablets", "Gas Relief Capsules", "Bloating Relief", "Laxative", "IBS Support", "Fiber Gummies", "Stomach Soothing Tea", "Diarrhea Relief"],
-        "Heart Health": ["Omega-3 Fish Oil", "Cholesterol Support", "Heart Multivitamin", "Blood Pressure Supplement", "CoQ10", "Aspirin (Low Dose)", "Cardio Formula", "Heartburn Relief", "Potassium Supplement", "Heart Tonic"],
-        "Diabetes Care": ["Glucose Monitor", "Blood Sugar Strips", "Insulin Pen Needles", "Diabetic Multivitamin", "Foot Cream", "Low GI Snacks", "Diabetes Test Kit", "Sugar-Free Syrup", "Chromium Supplement", "Glucose Tablets"]
-      };
-
-      Object.entries(categories).forEach(([category, products]) => {
-        document.write(`<section class="category"><h3>${category}</h3><div class="products-grid">`);
-        products.forEach(product => {
-          const price = (Math.random() * 20 + 5).toFixed(2);
-          document.write(`
-            <div class="product-card">
-              <img src="images.jpeg" alt="${product}">
-              <div class="details">
-                <h3>${product}</h3>
-                <p class="price">$${price}</p>
-                <button>Add to Cart</button>
-              </div>
+    <?php
+    $medicines = getMedicinesByCategory();
+    foreach ($medicines as $category => $products): ?>
+        <section class="category">
+            <h3><?php echo htmlspecialchars($category); ?></h3>
+            <div class="products-grid">
+                <?php foreach ($products as $product): ?>
+                    <div class="product-card">
+                        <img src="<?php echo htmlspecialchars($product['image_path']); ?>" 
+                             alt="<?php echo htmlspecialchars($product['medication_name']); ?>">
+                        <div class="details">
+                            <h3><?php echo htmlspecialchars($product['medication_name']); ?></h3>
+                            <p class="price">$<?php echo number_format($product['unit_price'], 2); ?></p>
+                            <button onclick="addToCart('<?php echo htmlspecialchars($product['ndc']); ?>', 
+                                                     '<?php echo htmlspecialchars($product['medication_name']); ?>', 
+                                                     '<?php echo htmlspecialchars($product['unit_price']); ?>')" 
+                                    class="add-cart-btn">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
-          `);
-        });
-        document.write(`</div></section>`);
-      });
-    </script>
+        </section>
+    <?php endforeach; ?>
   </main>
 
   <!-- Contact Section -->
@@ -295,5 +342,94 @@ require_once 'config/db.php';
     <p>&copy; 2025 PharmaCare. All rights reserved.</p>
   </footer>
 
+  <script>
+    // Store session data as JavaScript variables
+    const isLoggedIn = <?php echo $isLoggedIn ? 'true' : 'false'; ?>;
+    const clientPhone = <?php echo $userPhone ? '"'.$userPhone.'"' : 'null'; ?>;
+    
+    // For debugging
+    console.log("Login status:", isLoggedIn);
+    console.log("Client phone:", clientPhone);
+    
+    // Add to cart function
+    function addToCart(ndc, medicationName, price) {
+        // Check if user is logged in
+        if (!isLoggedIn || !clientPhone) {
+            alert("Please log in to add items to your cart");
+            window.location.href = "index.html";
+            return;
+        }
+        
+        // Make AJAX request to add item to cart
+        fetch("handlers/add_to_cart.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `ndc=${encodeURIComponent(ndc)}&phone=${encodeURIComponent(clientPhone)}&quantity=1`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert("Item added to cart successfully!");
+            } else {
+                alert(data.message || "Failed to add item to cart. Please try again.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while adding the item to cart");
+        });
+    }
+    
+    // Optional: Add search and filter functionality
+    document.getElementById('search-input').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        filterProducts(searchTerm);
+    });
+    
+    document.getElementById('category-filter').addEventListener('change', function() {
+        const selectedCategory = this.value;
+        filterCategories(selectedCategory);
+    });
+    
+    function filterProducts(searchTerm) {
+        const productCards = document.querySelectorAll('.product-card');
+        
+        productCards.forEach(card => {
+            const productName = card.querySelector('h3').textContent.toLowerCase();
+            if (productName.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    function filterCategories(category) {
+        const categorySections = document.querySelectorAll('section.category');
+        
+        if (category === '') {
+            categorySections.forEach(section => {
+                section.style.display = 'block';
+            });
+            return;
+        }
+        
+        categorySections.forEach(section => {
+            const sectionTitle = section.querySelector('h3').textContent;
+            if (sectionTitle === category) {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        });
+    }
+  </script>
 </body>
 </html>

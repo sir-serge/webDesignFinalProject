@@ -38,6 +38,11 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'client') {
       overflow: hidden;
       max-width: 100%;
     }
+
+            nav ul li a.active {
+          color: #56d799;
+          border-bottom: 2px solid #56d799;
+        }
   </style>
 </head>
 <body class="bg-lightBg text-gray-800">
@@ -48,9 +53,9 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'client') {
       <h1 class="text-2xl font-bold flex items-center">💊 Pharma<span class="text-accent ml-1">Care</span></h1>
       <nav class="space-x-6 hidden md:block">
         <a href="clientHomepage.php" class="hover:text-accent">Home</a>
-        <a href="product.html" class="hover:text-accent">Products</a>
-        <a href="#services" class="hover:text-accent">Services</a>
+        <a href="product.php" class="hover:text-accent">Products</a>
         <a href="#contact" class="hover:text-accent">Contact</a>
+        <a href="cart.php" class="hover:text-accent">Cart</a>
         <a href="#" onclick="logout()" class="bg-accent text-primary px-4 py-2 rounded font-medium hover:bg-opacity-90 ml-4">Logout</a>
       </nav>
     </div>
@@ -77,13 +82,13 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'client') {
             <div class="overflow-x-auto whitespace-nowrap mb-12 pb-2">
               <div class="inline-flex gap-6">
                 ${products.map(p => `
-                  <a href="product.html" class="block">
+                  <a href="product.php" class="block">  <!-- Changed from product.html to product.php -->
                     <div class="bg-white shadow p-4 rounded-lg w-64 inline-block hover:shadow-lg transition">
                       <img src="images.jpeg" alt="${p.name}" class="mx-auto mb-4">
                       <h5 class="font-semibold text-lg mb-1 text-center break-words">${p.name}</h5>
                       <p class="text-gray-600 mb-2 text-center">${p.price}</p>
                       <div class="text-center">
-                        <button class="bg-primary text-white px-3 py-2 rounded hover:bg-opacity-90 transition">Add to Cart</button>
+                        <button onclick="addToCart('${p.name}', ${p.price.replace('$', '')})" class="bg-primary text-white px-3 py-2 rounded hover:bg-opacity-90 transition">Add to Cart</button>
                       </div>
                     </div>
                   </a>
