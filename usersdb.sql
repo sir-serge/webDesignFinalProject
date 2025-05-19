@@ -32,8 +32,8 @@ CREATE TABLE pharmacistUser (
     state VARCHAR(100) NOT NULL,
     phone VARCHAR(20) NOT NULL,
     date_of_birth DATE NOT NULL,
-    npi_number VARCHAR(50) NOT NULL,
-    dea_number VARCHAR(50) NOT NULL,
+    tin_number VARCHAR(50) NOT NULL,
+    -- dea_number VARCHAR(50) NOT NULL,
     pharmacy_type VARCHAR(50) NOT NULL,
     pharmacy_address TEXT NOT NULL,
     pharmacy_city VARCHAR(100) NOT NULL

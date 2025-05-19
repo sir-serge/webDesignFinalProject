@@ -218,7 +218,7 @@ $medicinePrices = getMedicinesByCategory();
     }
 
     .product-card button {
-      background-color: #0a4275;
+      background-color: #56d799;
       color: white;
       border: none;
       padding: 10px;

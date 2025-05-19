@@ -11,6 +11,16 @@ $userName = $_SESSION['name'] ?? 'Unknown';
 
 // Database connection
 require_once 'config/db.php';
+
+// Fetch all patients from database
+try {
+    $stmt = $conn->prepare("SELECT * FROM PATIENT ORDER BY FirstName");
+    $stmt->execute();
+    $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch(PDOException $e) {
+    error_log("Error fetching patients: " . $e->getMessage());
+    $patients = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -674,6 +684,125 @@ require_once 'config/db.php';
             border-color: #0a4275;
         }
         
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 5vh auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: #0a4275;
+        }
+        
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover {
+            color: #0a4275;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .modal-footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+        
+        .modal-footer button {
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        .btn-primary {
+            background-color: #0a4275;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #f0f7ff;
+            color: #0a4275;
+        }
+        
+        .btn-primary:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
         /* Responsive Styles */
         @media (max-width: 1200px) {
             .profile-grid {
@@ -788,7 +917,7 @@ require_once 'config/db.php';
         <div class="main-content">
             <div class="page-title">
                 <h1>Patient Management</h1>
-                <button><i>➕</i> Add New Patient</button>
+                <button class="add-patient-btn"><i>➕</i> Add New Patient</button>
             </div>
             
             <!-- Patient Search & Filter -->
@@ -826,137 +955,230 @@ require_once 'config/db.php';
             <!-- Patient List (Card View) -->
             <div class="patient-list">
                 <div class="patient-grid">
-                    <!-- Patient Card 1 -->
+                    <?php foreach($patients as $patient): 
+                        // Calculate initials
+                        $initials = strtoupper(substr($patient['FirstName'], 0, 1) . substr($patient['LastName'], 0, 1));
+                    ?>
                     <div class="patient-card">
                         <div class="patient-header">
-                            <div class="patient-avatar">RW</div>
+                            <div class="patient-avatar"><?php echo htmlspecialchars($initials); ?></div>
                             <div class="patient-title">
-                                <div class="patient-name">Robert Williams</div>
-                                <div class="patient-id">ID: PT-3482</div>
+                                <div class="patient-name"><?php echo htmlspecialchars($patient['FirstName'] . ' ' . $patient['LastName']); ?></div>
+                                <div class="patient-id">ID: <?php echo htmlspecialchars($patient['PatientID']); ?></div>
                             </div>
                         </div>
                         <div class="patient-body">
                             <div class="patient-info-group">
                                 <div class="info-label">Contact</div>
-                                <div class="info-value">(555) 123-4567</div>
-                                <div class="info-value">rwilliams@email.com</div>
+                                <div class="info-value"><?php echo htmlspecialchars($patient['Phone']); ?></div>
+                                <div class="info-value"><?php echo htmlspecialchars($patient['Email'] ?? 'N/A'); ?></div>
                             </div>
                             <div class="patient-info-group">
                                 <div class="info-label">Demographics</div>
-                                <div class="info-value">Male, 48 years (05/12/1975)</div>
-                                <div class="info-value">123 Main St, Anytown, USA</div>
+                                <div class="info-value">
+                                    <?php 
+                                        echo htmlspecialchars($patient['Gender'] === 'M' ? 'Male' : 'Female') . ', ' . 
+                                             htmlspecialchars($patient['Age']) . ' years (' . 
+                                             date('m/d/Y', strtotime($patient['DateOfBirth'])) . ')';
+                                    ?>
+                                </div>
+                                <div class="info-value"><?php echo htmlspecialchars($patient['Address']); ?></div>
                             </div>
                             <div class="patient-info-group">
                                 <div class="info-label">Insurance</div>
-                                <div class="info-value">Blue Cross Blue Shield</div>
-                                <div class="info-value">Policy #: BCBS-1234567</div>
+                                <div class="info-value"><?php echo htmlspecialchars($patient['InsuranceProvider'] ?? 'N/A'); ?></div>
+                                <div class="info-value">Policy #: <?php echo htmlspecialchars($patient['PolicyNumber'] ?? 'N/A'); ?></div>
                             </div>
                         </div>
                         <div class="patient-footer">
-                            <a href="#" class="card-btn btn-primary">View Profile</a>
-                            <a href="#" class="card-btn btn-secondary">Prescriptions</a>
+                            <a href="patientProfile.php?id=<?php echo urlencode($patient['PatientID']); ?>" class="card-btn btn-primary">View Profile</a>
+                            <a href="prescriptions.php?id=<?php echo urlencode($patient['PatientID']); ?>" class="card-btn btn-secondary">Prescriptions</a>
                         </div>
                     </div>
-                    <!-- Patient Card 2 -->
-                    <div class="patient-card">
-                        <div class="patient-header">
-                            <div class="patient-avatar">MJ</div>
-                            <div class="patient-title">
-                                <div class="patient-name">Maria Johnson</div>
-                                <div class="patient-id">ID: PT-3476</div>
-                            </div>
-                        </div>
-                        <div class="patient-body">
-                            <div class="patient-info-group">
-                                <div class="info-label">Contact</div>
-                                <div class="info-value">(555) 234-5678</div>
-                                <div class="info-value">mjohnson@email.com</div>
-                            </div>
-                            <div class="patient-info-group">
-                                <div class="info-label">Demographics</div>
-                                <div class="info-value">Female, 42 years (11/23/1982)</div>
-                                <div class="info-value">456 Oak Ave, Anytown, USA</div>
-                            </div>
-                            <div class="patient-info-group">
-                                <div class="info-label">Insurance</div>
-                                <div class="info-value">Medicare</div>
-                                <div class="info-value">Policy #: MED-7654321</div>
-                            </div>
-                        </div>
-                        <div class="patient-footer">
-                            <a href="#" class="card-btn btn-primary">View Profile</a>
-                            <a href="#" class="card-btn btn-secondary">Prescriptions</a>
-                        </div>
-                    </div>
-                    <!-- Patient Card 3 -->
-                    <div class="patient-card">
-                        <div class="patient-header">
-                            <div class="patient-avatar">DS</div>
-                            <div class="patient-title">
-                                <div class="patient-name">David Smith</div>
-                                <div class="patient-id">ID: PT-3471</div>
-                            </div>
-                        </div>
-                        <div class="patient-body">
-                            <div class="patient-info-group">
-                                <div class="info-label">Contact</div>
-                                <div class="info-value">(555) 345-6789</div>
-                                <div class="info-value">dsmith@email.com</div>
-                            </div>
-                            <div class="patient-info-group">
-                                <div class="info-label">Demographics</div>
-                                <div class="info-value">Male, 57 years (02/15/1968)</div>
-                                <div class="info-value">789 Pine St, Anytown, USA</div>
-                            </div>
-                            <div class="patient-info-group">
-                                <div class="info-label">Insurance</div>
-                                <div class="info-value">UnitedHealth</div>
-                                <div class="info-value">Policy #: UH-9876543</div>
-                            </div>
-                        </div>
-                        <div class="patient-footer">
-                            <a href="#" class="card-btn btn-primary">View Profile</a>
-                            <a href="#" class="card-btn btn-secondary">Prescriptions</a>
-                        </div>
-                    </div>
-                    <!-- Patient Card 4 -->
-                    <div class="patient-card">
-                        <div class="patient-header">
-                            <div class="patient-avatar">JL</div>
-                            <div class="patient-title">
-                                <div class="patient-name">Jennifer Lee</div>
-                                <div class="patient-id">ID: PT-3469</div>
-                            </div>
-                        </div>
-                        <div class="patient-body">
-                            <div class="patient-info-group">
-                                <div class="info-label">Contact</div>
-                                <div class="info-value">(555) 456-7890</div>
-                                <div class="info-value">jlee@email.com</div>
-                            </div>
-                            <div class="patient-info-group">
-                                <div class="info-label">Demographics</div>
-                                <div class="info-value">Female, 35 years (07/08/1990)</div>
-                                <div class="info-value">321 Cedar Dr, Anytown, USA</div>
-                            </div>
-                            <div class="patient-info-group">
-                                <div class="info-label">Insurance</div>
-                                <div class="info-value">Aetna</div>
-                                <div class="info-value">Policy #: AET-2468135</div>
-                            </div>
-                        </div>
-                        <div class="patient-footer">
-                            <a href="#" class="card-btn btn-primary">View Profile</a>
-                            <a href="#" class="card-btn btn-secondary">Prescriptions</a>
-                        </div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
             
-
-
-                
+            <!-- Add Patient Modal -->
+            <div id="addPatientModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Add New Patient</h3>
+                        <span class="close">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addPatientForm" novalidate>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="patientID">Patient ID *</label>
+                                    <input type="text" id="patientID" name="patientID" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="firstName">First Name *</label>
+                                    <input type="text" id="firstName" name="firstName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Last Name *</label>
+                                    <input type="text" id="lastName" name="lastName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone *</label>
+                                    <input type="tel" id="phone" name="phone" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" name="email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="gender">Gender *</label>
+                                    <select id="gender" name="gender" required>
+                                        <option value="">Select Gender</option>
+                                        <option value="M">Male</option>
+                                        <option value="F">Female</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dateOfBirth">Date of Birth *</label>
+                                    <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="address">Address *</label>
+                                    <textarea id="address" name="address" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="insuranceProvider">Insurance Provider</label>
+                                    <input type="text" id="insuranceProvider" name="insuranceProvider">
+                                </div>
+                                <div class="form-group">
+                                    <label for="policyNumber">Policy Number</label>
+                                    <input type="text" id="policyNumber" name="policyNumber">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn-secondary close-modal">Cancel</button>
+                                <button type="submit" class="btn-primary">Add Patient</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="js/patient.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('addPatientModal');
+    const addButton = document.querySelector('.add-patient-btn');
+    const closeButton = modal.querySelector('.close');
+    const closeModalButton = modal.querySelector('.close-modal');
+    const form = document.getElementById('addPatientForm');
+
+    // Show modal
+    addButton.addEventListener('click', function() {
+        modal.style.display = 'block';
+        form.reset(); // Clear form when opening
+    });
+
+    // Close modal functions
+    function closeModal() {
+        modal.style.display = 'none';
+        form.reset();
+    }
+
+    closeButton.addEventListener('click', closeModal);
+    closeModalButton.addEventListener('click', closeModal);
+
+    // Close when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Form submission
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Adding...';
+
+        try {
+            const formData = new FormData(this);
+            
+            const response = await fetch('handlers/add_patient.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                // Create new patient card
+                const patient = result.patient;
+                const initials = patient.FirstName.charAt(0) + patient.LastName.charAt(0);
+                const dob = new Date(patient.DateOfBirth);
+                const formattedDob = dob.toLocaleDateString();
+
+                const patientCard = `
+                    <div class="patient-card">
+                        <div class="patient-header">
+                            <div class="patient-avatar">${initials.toUpperCase()}</div>
+                            <div class="patient-title">
+                                <div class="patient-name">${patient.FirstName} ${patient.LastName}</div>
+                                <div class="patient-id">ID: ${patient.PatientID}</div>
+                            </div>
+                        </div>
+                        <div class="patient-body">
+                            <div class="patient-info-group">
+                                <div class="info-label">Contact</div>
+                                <div class="info-value">${patient.Phone}</div>
+                                <div class="info-value">${patient.Email || 'N/A'}</div>
+                            </div>
+                            <div class="patient-info-group">
+                                <div class="info-label">Demographics</div>
+                                <div class="info-value">
+                                    ${patient.Gender === 'M' ? 'Male' : 'Female'}, 
+                                    ${patient.Age} years (${formattedDob})
+                                </div>
+                                <div class="info-value">${patient.Address}</div>
+                            </div>
+                            <div class="patient-info-group">
+                                <div class="info-label">Insurance</div>
+                                <div class="info-value">${patient.InsuranceProvider || 'N/A'}</div>
+                                <div class="info-value">Policy #: ${patient.PolicyNumber || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="patient-footer">
+                            <a href="patientProfile.php?id=${patient.PatientID}" class="card-btn btn-primary">View Profile</a>
+                            <a href="prescriptions.php?id=${patient.PatientID}" class="card-btn btn-secondary">Prescriptions</a>
+                        </div>
+                    </div>
+                `;
+
+                // Add the new card to the grid
+                document.querySelector('.patient-grid').insertAdjacentHTML('afterbegin', patientCard);
+                
+                // Close modal and show success message
+                closeModal();
+                alert('Patient added successfully!');
+            } else {
+                throw new Error(result.message || 'Failed to add patient');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert(error.message || 'An error occurred while adding the patient');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Add Patient';
+        }
+    });
+});
+</script>
 </body>
 </html>

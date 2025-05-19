@@ -3,6 +3,65 @@ document.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('input', filterPatients);
 });
 
+// Modal functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('addPatientModal');
+    const addButton = document.querySelector('.page-title button');
+    const closeButtons = document.querySelectorAll('.close, .close-modal');
+
+    // Show modal
+    addButton.addEventListener('click', function() {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    });
+
+    // Close modal
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+    });
+
+    // Close when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+
+    // Form submission
+    document.getElementById('addPatientForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Adding...';
+
+        try {
+            const formData = new FormData(this);
+            const response = await fetch('handlers/add_patient.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert('Patient added successfully!');
+                location.reload();
+            } else {
+                alert(result.message || 'Failed to add patient');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while adding the patient');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Add Patient';
+        }
+    });
+});
+
 function filterPatients() {
     const searchTerm = document.getElementById('searchPatients').value.toLowerCase();
     const patientCards = document.querySelectorAll('.patient-card');
