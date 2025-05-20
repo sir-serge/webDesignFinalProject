@@ -1,9 +1,54 @@
 # Pharmacy Management System Documentation
 
 ## Overview
-The Pharmacy Management System is a web-based application designed to manage pharmacy operations, including user management, inventory control, prescription handling, and order processing. The system supports two types of users: Pharmacists and Clients (patients).
+The Pharmacy Management System is a web-based application designed to manage pharmacy operations, including user management, inventory control, and order processing. The system supports two types of users: Pharmacists and Clients (patients).
 
-## System Architecture
+## Problems with Traditional Pharmacy Systems
+
+### Access Barriers
+- Limited operating hours conflict with many people's work schedules
+- Physical distance creates hardship for rural residents and those without transportation
+- Mobility challenges for elderly and disabled individuals make pharmacy visits difficult
+- Long wait times during peak hours waste patients' time
+
+### Medication Management Issues
+- Prescription refill delays or gaps when patients can't visit in person
+- Difficulty maintaining medication adherence without reminders
+- Limited privacy for discussing sensitive medications in public pharmacy settings
+- Medication shortages at local pharmacies with no easy alternatives
+
+### Information and Service Limitations
+- Inconsistent medication counseling depending on pharmacy staffing
+- Limited time for pharmacist consultations during busy periods
+- Difficulty comparing medication prices across different pharmacies
+- Paper prescriptions can be lost or damaged
+
+## How Online Pharmacy Systems Solve These Problems
+
+### Improved Accessibility
+- 24/7 ordering system eliminates time constraints
+- Home delivery removes transportation barriers
+- User-friendly interfaces make ordering possible for anyone with internet access
+- Serves patients regardless of location, mobility limitations, or schedule
+
+### Enhanced Medication Management
+- Automated refill reminders ensure continuous medication availability
+- Medication history tracking helps patients maintain adherence
+- Digital prescription management prevents lost prescriptions
+- Inventory from multiple locations reduces medication shortage issues
+
+### Better Information and Service
+- Comprehensive medication information available at all times
+- Digital pharmacist consultations available without time pressure
+- Easy price comparison across medications and generic alternatives
+- Integration with health records for improved medication safety
+
+### Additional Benefits
+- Reduced healthcare costs through improved medication adherence
+- Decreased burden on healthcare system from preventable complications
+- Environmental benefits from efficient delivery routes versus individual trips
+- Increased patient engagement in their own healthcare management
+
 
 ### Technology Stack
 - Backend: PHP
@@ -45,14 +90,6 @@ The Pharmacy Management System is a web-based application designed to manage pha
    - Links clients with medicines
    - Tracks quantities
 
-5. **orders**
-   - Manages order processing
-   - Tracks order status and total amounts
-
-6. **order_items**
-   - Stores individual items in orders
-   - Links orders with medicines
-
 ## Key Features
 
 ### User Management
@@ -61,11 +98,38 @@ The Pharmacy Management System is a web-based application designed to manage pha
 - Input validation and error handling
 
 ### Pharmacist Features
-- Inventory management
-- Prescription handling
-- Order processing
-- Report generation
-- Stock management with reorder points
+
+1. **Dashboard Overview**
+   - View active patients, inventory status, and dispensing activity
+   - Access quick stats like prescriptions today, waiting for pickup, and inventory status
+   - Monitor pharmacy performance metrics
+
+2. **Inventory Management**
+   - Add new medications to the inventory
+   - Update existing medication details (name, stock, price, etc.)
+   - Remove medications from inventory with reasons logged
+   - View inventory levels and receive alerts for low stock
+   - Track medication expiry dates
+   - Manage reorder points and stock levels
+
+3. **Patient Records**
+   - Search and view patient records
+   - Access patient profiles and medication history
+   - Manage patient information and prescriptions
+   - Track patient medication adherence
+
+4. **Reports**
+   - Generate reports on dispensing activity
+   - Track inventory levels and usage rates
+   - View sales and revenue reports
+   - Monitor medication trends
+   - Export reports in various formats
+
+5. **User Management**
+   - Register and manage pharmacist accounts
+   - Secure login and access control
+   - Manage user permissions
+   - Track user activity
 
 ### Client Features
 - Browse medications
@@ -74,6 +138,43 @@ The Pharmacy Management System is a web-based application designed to manage pha
 - Prescription submission
 - Profile management
 
+# Pharmacy Management System
+
+// ... existing code ...
+
+### Client Features
+
+1. **User Account Management**
+   - Easy registration process
+   - Secure login system
+   - Profile management
+2. **Medication Browsing**
+   - Search medications by name, category, or condition
+   - View detailed medication information
+   - Check medication availability
+   - Compare prices
+   - View medication images and descriptions
+   - Filter medications by category
+
+3. **Shopping Cart**
+   - Add medications to cart
+   - Update quantities
+   - Remove items
+   - View total cost
+
+4. **Payment Processing**
+   - Multiple payment methods
+   - Secure payment processing
+
+5. **Mobile Responsiveness**
+    - Access system from any device
+    - Mobile-friendly interface
+    - Easy navigation
+    - Quick access to key features
+    - Responsive design
+    - Touch-friendly controls
+
+// ... rest of existing documentation ...
 ## API Endpoints
 
 ### Authentication
@@ -149,9 +250,6 @@ The system implements comprehensive error handling:
 - Enhance reporting capabilities
 - Implement email notifications
 - Add mobile responsiveness improvements
-
-## Support
-For technical support or questions, please contact the system administrator.
 
 ### registter ####
 when check box is false return the we should create the insert all data in table clientUser where we should use the primary key is the phone number. all inputs must valid and are required 
@@ -676,48 +774,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 These PHP code snippets demonstrate how to add a patient and remove items from the cart. You can adapt them to your specific requirements and database schema as needed.
 
-## Problems with Traditional Pharmacy Systems
-
-### Access Barriers
-- Limited operating hours conflict with many people's work schedules
-- Physical distance creates hardship for rural residents and those without transportation
-- Mobility challenges for elderly and disabled individuals make pharmacy visits difficult
-- Long wait times during peak hours waste patients' time
-
-### Medication Management Issues
-- Prescription refill delays or gaps when patients can't visit in person
-- Difficulty maintaining medication adherence without reminders
-- Limited privacy for discussing sensitive medications in public pharmacy settings
-- Medication shortages at local pharmacies with no easy alternatives
-
-### Information and Service Limitations
-- Inconsistent medication counseling depending on pharmacy staffing
-- Limited time for pharmacist consultations during busy periods
-- Difficulty comparing medication prices across different pharmacies
-- Paper prescriptions can be lost or damaged
-
-## How Online Pharmacy Systems Solve These Problems
-
-### Improved Accessibility
-- 24/7 ordering system eliminates time constraints
-- Home delivery removes transportation barriers
-- User-friendly interfaces make ordering possible for anyone with internet access
-- Serves patients regardless of location, mobility limitations, or schedule
-
-### Enhanced Medication Management
-- Automated refill reminders ensure continuous medication availability
-- Medication history tracking helps patients maintain adherence
-- Digital prescription management prevents lost prescriptions
-- Inventory from multiple locations reduces medication shortage issues
-
-### Better Information and Service
-- Comprehensive medication information available at all times
-- Digital pharmacist consultations available without time pressure
-- Easy price comparison across medications and generic alternatives
-- Integration with health records for improved medication safety
-
-### Additional Benefits
-- Reduced healthcare costs through improved medication adherence
-- Decreased burden on healthcare system from preventable complications
-- Environmental benefits from efficient delivery routes versus individual trips
-- Increased patient engagement in their own healthcare management
