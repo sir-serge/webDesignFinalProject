@@ -140,7 +140,6 @@ The Pharmacy Management System is a web-based application designed to manage pha
 
 # Pharmacy Management System
 
-// ... existing code ...
 
 ### Client Features
 
