@@ -197,7 +197,7 @@ the  background color should be #fff8e1 and border on the left of 3px #ffc107
 when the pharmasits finish adding the medecine the product if it doesn't exist on the product.html create the product card on the product page .
 
 #### add to cart ###
- when user click add to cart on any of the page on the client pages the product that was clicked will be added on the list of cart items list  on the cart.html page and the amount on the product should be added to the total and when the user click the  and when the user  clicks the remove button the product should be removed from the cart and the total should be updated. when the user clicks on the checkout button it should redirect him to the payment.html page and when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when user click checkout  you should return a pop payment form that will include fields for credit card information, or with mobile phone number and the amount to be paid. when the user clicks on the pay button it should check if the payment is successful or not and if it is successful it should redirect him to the success.html page and if it is not successful it should redirect him to the error.html page. when the user clicks on the cancel button it should redirect him to the clientHomepage.html page. when the user clicks on the print button it should print the invoice and when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when the user clicks on the back button it should redirect him to the cart.html page. when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when he clicks on the back button it should redirect him to the cart.html page. when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when he clicks on the back button it should redirect him to the cart.html page. when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when he clicks on the back button it should redirect him to the cart.html page. when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when he clicks on the back button it should redirect him to the cart.html page. when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when he clicks on the back button it should redirect him to the cart.html page. when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when he clicks on
+ when user click add to cart on any of the page on the client pages the product that was clicked will be added on the list of cart items list  on the cart.html page and the amount on the product should be added to the total and when the user click the  and when the user  clicks the remove button the product should be removed from the cart and the total should be updated. when the user clicks on the checkout button it should redirect him to the payment.html page and when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when user click checkout  you should return a pop payment form that will include fields for credit card information, or with mobile phone number and the amount to be paid. when the user clicks on the pay button it should check if the payment is successful or not and if it is successful it should redirect him to the success.html page and if it is not successful it should redirect him to the error.html page. when the user clicks on the cancel button it should redirect him to the clientHomepage.html page. when the user clicks on the print button it should print the invoice and when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when the user clicks on the back button it should redirect him to the cart.html page. when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when he clicks on the back button it should redirect him to the cart.html page. when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when he clicks on the back button it should redirect him to the cart.html page. when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when he clicks on the back button it should redirect him to the cart.html page. when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when he clicks on the back button it should redirect him to the cart.html page. when he clicks on the cancel button it should redirect him to the clientHomepage.html page. when he clicks on
 
 
 
@@ -543,3 +543,96 @@ nb:check if there is no primary key already with those information return a pop 
 ```
 
 These code snippets demonstrate the UI components and their styling for the main functions of the system. Each component is designed to be responsive and user-friendly, with clear visual feedback for different states and actions.
+
+## PHP Backend Examples
+
+### 1. Registering a New Client
+```php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $phone = $_POST['phone'];
+    $email = $_POST['email'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    // ... other fields ...
+    $stmt = $conn->prepare("INSERT INTO clientUser (phone, email, password) VALUES (?, ?, ?)");
+    $stmt->execute([$phone, $email, $password]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'message' => 'Registration successful!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Registration failed.']);
+    }
+}
+```
+
+### 2. Registering a New Pharmacist
+```php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $license = $_POST['licenseNumber'];
+    $email = $_POST['email'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    // ... other fields ...
+    $stmt = $conn->prepare("INSERT INTO pharmacistUser (license_number, email, password) VALUES (?, ?, ?)");
+    $stmt->execute([$license, $email, $password]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'message' => 'Pharmacist registered!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Registration failed.']);
+    }
+}
+```
+
+### 3. Adding Inventory (Medicine)
+```php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $ndc = $_POST['ndc'];
+    $name = $_POST['medicationName'];
+    $category = $_POST['category'];
+    $stock = $_POST['stock'];
+    $price = $_POST['unitPrice'];
+    $expiry = $_POST['expiryDate'];
+    // ... handle file upload ...
+    $stmt = $conn->prepare("INSERT INTO medicine (ndc, medication_name, category, stock, unit_price, expiry_date) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$ndc, $name, $category, $stock, $price, $expiry]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'message' => 'Medicine added!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to add medicine.']);
+    }
+}
+```
+
+### 4. Adding to Cart
+```php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $clientPhone = $_POST['clientPhone'];
+    $ndc = $_POST['ndc'];
+    $quantity = $_POST['quantity'];
+    $stmt = $conn->prepare("INSERT INTO cart (client_phone, ndc, quantity) VALUES (?, ?, ?)");
+    $stmt->execute([$clientPhone, $ndc, $quantity]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'message' => 'Added to cart!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to add to cart.']);
+    }
+}
+```
+
+### 5. Login (Client/Pharmacist)
+```php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $isPharmacist = isset($_POST['isPharmacist']) && $_POST['isPharmacist'] === 'true';
+    $table = $isPharmacist ? 'pharmacistUser' : 'clientUser';
+    $stmt = $conn->prepare("SELECT * FROM $table WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($user && password_verify($password, $user['password'])) {
+        // Set session, redirect, etc.
+        echo json_encode(['success' => true, 'message' => 'Login successful!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
+    }
+}
+```
+
+These PHP code snippets show how the backend handles the main actions in the system. You can adapt them to your actual field names and validation logic as needed.
