@@ -1,8 +1,8 @@
-##NAME:IRAKOZE SERGE
-##ID:26980
-##PROJECT NAME:ONLINE PHARMACY 
-##COURSE: WEB DESIGN 
-##lecture: jean-pier Rutarindwa
+## NAME:IRAKOZE SERGE
+## ID:26980
+## PROJECT NAME:ONLINE PHARMACY 
+## COURSE: WEB DESIGN 
+## lecture: jean-pier Rutarindwa
 
 # Pharmacy Management System Documentation
 
