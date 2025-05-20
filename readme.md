@@ -2,7 +2,8 @@
 
 ## Overview
 The Pharmacy Management System is a web-based application designed to manage pharmacy operations, including user management, inventory control and order processing. The system supports two types of users: Pharmacists and Clients (patients).
-
+## goal ##
+this system was create for both patient and pharmacaist to 
 ## System Architecture
 
 ### Technology Stack
