@@ -174,7 +174,6 @@ The Pharmacy Management System is a web-based application designed to manage pha
     - Responsive design
     - Touch-friendly controls
 
-// ... rest of existing documentation ...
 ## API Endpoints
 
 ### Authentication
@@ -331,8 +330,7 @@ nb:check if there is no primary key already with those information return a pop 
   - State
   - Phone Number
   - Date of Birth
-  - NPI Number
-  - DEA Number
+  - TIN Number
   - Pharmacy Type
   - Pharmacy Address
   - Pharmacy City
