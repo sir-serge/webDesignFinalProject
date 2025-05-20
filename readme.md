@@ -1,9 +1,8 @@
 # Pharmacy Management System Documentation
 
 ## Overview
-The Pharmacy Management System is a web-based application designed to manage pharmacy operations, including user management, inventory control and order processing. The system supports two types of users: Pharmacists and Clients (patients).
-## goal ##
-this system was create for both patient and pharmacaist to 
+The Pharmacy Management System is a web-based application designed to manage pharmacy operations, including user management, inventory control, prescription handling, and order processing. The system supports two types of users: Pharmacists and Clients (patients).
+
 ## System Architecture
 
 ### Technology Stack
@@ -46,7 +45,13 @@ this system was create for both patient and pharmacaist to
    - Links clients with medicines
    - Tracks quantities
 
+5. **orders**
+   - Manages order processing
+   - Tracks order status and total amounts
 
+6. **order_items**
+   - Stores individual items in orders
+   - Links orders with medicines
 
 ## Key Features
 
@@ -57,6 +62,7 @@ this system was create for both patient and pharmacaist to
 
 ### Pharmacist Features
 - Inventory management
+- Prescription handling
 - Order processing
 - Report generation
 - Stock management with reorder points
@@ -144,6 +150,8 @@ The system implements comprehensive error handling:
 - Implement email notifications
 - Add mobile responsiveness improvements
 
+## Support
+For technical support or questions, please contact the system administrator.
 
 ### registter ####
 when check box is false return the we should create the insert all data in table clientUser where we should use the primary key is the phone number. all inputs must valid and are required 
@@ -667,3 +675,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ```
 
 These PHP code snippets demonstrate how to add a patient and remove items from the cart. You can adapt them to your specific requirements and database schema as needed.
+
+## Problems with Traditional Pharmacy Systems
+
+### Access Barriers
+- Limited operating hours conflict with many people's work schedules
+- Physical distance creates hardship for rural residents and those without transportation
+- Mobility challenges for elderly and disabled individuals make pharmacy visits difficult
+- Long wait times during peak hours waste patients' time
+
+### Medication Management Issues
+- Prescription refill delays or gaps when patients can't visit in person
+- Difficulty maintaining medication adherence without reminders
+- Limited privacy for discussing sensitive medications in public pharmacy settings
+- Medication shortages at local pharmacies with no easy alternatives
+
+### Information and Service Limitations
+- Inconsistent medication counseling depending on pharmacy staffing
+- Limited time for pharmacist consultations during busy periods
+- Difficulty comparing medication prices across different pharmacies
+- Paper prescriptions can be lost or damaged
+
+## How Online Pharmacy Systems Solve These Problems
+
+### Improved Accessibility
+- 24/7 ordering system eliminates time constraints
+- Home delivery removes transportation barriers
+- User-friendly interfaces make ordering possible for anyone with internet access
+- Serves patients regardless of location, mobility limitations, or schedule
+
+### Enhanced Medication Management
+- Automated refill reminders ensure continuous medication availability
+- Medication history tracking helps patients maintain adherence
+- Digital prescription management prevents lost prescriptions
+- Inventory from multiple locations reduces medication shortage issues
+
+### Better Information and Service
+- Comprehensive medication information available at all times
+- Digital pharmacist consultations available without time pressure
+- Easy price comparison across medications and generic alternatives
+- Integration with health records for improved medication safety
+
+### Additional Benefits
+- Reduced healthcare costs through improved medication adherence
+- Decreased burden on healthcare system from preventable complications
+- Environmental benefits from efficient delivery routes versus individual trips
+- Increased patient engagement in their own healthcare management
