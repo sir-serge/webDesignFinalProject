@@ -1,7 +1,7 @@
 # Pharmacy Management System Documentation
 
 ## Overview
-The Pharmacy Management System is a web-based application designed to manage pharmacy operations, including user management, inventory control, prescription handling, and order processing. The system supports two types of users: Pharmacists and Clients (patients).
+The Pharmacy Management System is a web-based application designed to manage pharmacy operations, including user management, inventory control and order processing. The system supports two types of users: Pharmacists and Clients (patients).
 
 ## System Architecture
 
@@ -45,13 +45,7 @@ The Pharmacy Management System is a web-based application designed to manage pha
    - Links clients with medicines
    - Tracks quantities
 
-5. **orders**
-   - Manages order processing
-   - Tracks order status and total amounts
 
-6. **order_items**
-   - Stores individual items in orders
-   - Links orders with medicines
 
 ## Key Features
 
@@ -62,7 +56,6 @@ The Pharmacy Management System is a web-based application designed to manage pha
 
 ### Pharmacist Features
 - Inventory management
-- Prescription handling
 - Order processing
 - Report generation
 - Stock management with reorder points
@@ -150,8 +143,6 @@ The system implements comprehensive error handling:
 - Implement email notifications
 - Add mobile responsiveness improvements
 
-## Support
-For technical support or questions, please contact the system administrator.
 
 ### registter ####
 when check box is false return the we should create the insert all data in table clientUser where we should use the primary key is the phone number. all inputs must valid and are required 
