@@ -635,4 +635,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ```
 
-These PHP code snippets show how the backend handles the main actions in the system. You can adapt them to your actual field names and validation logic as needed.
+### 6. Adding a Patient
+```php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $firstName = $_POST['firstName'];
+    $lastName = $_POST['lastName'];
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $address = $_POST['address'];
+    $city = $_POST['city'];
+    $state = $_POST['state'];
+    $dateOfBirth = $_POST['dateOfBirth'];
+    $insuranceNumber = $_POST['insuranceNumber'];
+    $insuranceProvider = $_POST['insuranceProvider'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+    $stmt = $conn->prepare("INSERT INTO clientUser (first_name, last_name, email, phone, address, city, state, date_of_birth, insurance_number, insurance_provider, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$firstName, $lastName, $email, $phone, $address, $city, $state, $dateOfBirth, $insuranceNumber, $insuranceProvider, $password]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'message' => 'Patient added successfully!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to add patient.']);
+    }
+}
+```
+
+### 7. Removing Item from Cart
+```php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $cartId = $_POST['cartId'];
+    $stmt = $conn->prepare("DELETE FROM cart WHERE id = ?");
+    $stmt->execute([$cartId]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'message' => 'Item removed from cart!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to remove item from cart.']);
+    }
+}
+```
+
+These PHP code snippets demonstrate how to add a patient and remove items from the cart. You can adapt them to your specific requirements and database schema as needed.
