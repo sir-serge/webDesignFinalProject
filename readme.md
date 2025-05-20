@@ -238,3 +238,308 @@ nb:check if there is no primary key already with those information return a pop 
   - Pharmacy Type
   - Pharmacy Address
   - Pharmacy City
+
+## Function Examples and UI Components
+
+### 1. Registration Forms
+
+#### Client Registration Form
+```html
+<form id="clientRegistrationForm" class="registration-form">
+    <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" name="firstName" required>
+    </div>
+    <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" name="lastName" required>
+    </div>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" required>
+    </div>
+    <!-- Additional fields -->
+    <button type="submit">Register</button>
+</form>
+```
+
+#### Pharmacist Registration Form
+```html
+<form id="pharmacistRegistrationForm" class="registration-form">
+    <div class="form-group">
+        <label for="licenseNumber">Pharmacy License Number</label>
+        <input type="text" id="licenseNumber" name="licenseNumber" required>
+    </div>
+    <div class="form-group">
+        <label for="pharmacyName">Pharmacy Name</label>
+        <input type="text" id="pharmacyName" name="pharmacyName" required>
+    </div>
+    <!-- Additional fields -->
+    <button type="submit">Register</button>
+</form>
+```
+
+### 2. Add Inventory Form
+```html
+<div class="inventory-form">
+    <h2>Add New Medication</h2>
+    <form id="addInventoryForm">
+        <div class="form-group">
+            <label for="medicationName">Medication Name</label>
+            <input type="text" id="medicationName" required>
+        </div>
+        <div class="form-group">
+            <label for="ndc">NDC Number</label>
+            <input type="text" id="ndc" required>
+        </div>
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" required>
+                <option value="prescription">Prescription</option>
+                <option value="otc">Over-the-Counter</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="stock">Stock Quantity</label>
+            <input type="number" id="stock" required>
+        </div>
+        <div class="form-group">
+            <label for="reorderPoint">Reorder Point</label>
+            <input type="number" id="reorderPoint" required>
+        </div>
+        <div class="form-group">
+            <label for="unitPrice">Unit Price</label>
+            <input type="number" step="0.01" id="unitPrice" required>
+        </div>
+        <div class="form-group">
+            <label for="expiryDate">Expiry Date</label>
+            <input type="date" id="expiryDate" required>
+        </div>
+        <div class="form-group">
+            <label for="medicationImage">Medication Image</label>
+            <input type="file" id="medicationImage" accept="image/*" required>
+        </div>
+        <button type="submit">Add Medication</button>
+    </form>
+</div>
+```
+
+### 3. Inventory Status Display
+```html
+<!-- Low Stock Warning -->
+<div class="stock-warning low-stock">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>Low Stock Alert: {medication_name} has only {current_stock} units remaining</span>
+</div>
+
+<!-- Critical Stock Warning -->
+<div class="stock-warning critical-stock">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>Critical Stock Alert: {medication_name} has only {current_stock} units remaining</span>
+</div>
+
+<!-- Expiry Warning -->
+<div class="expiry-warning" style="background-color: #ffebee; border-left: 3px solid #ff5252;">
+    <h4>{Medication}</h4>
+    <div class="expiry-details">
+        <div>Lot: {ndc}</div>
+        <div class="expiry-date">Expires: {expiry_date}</div>
+    </div>
+</div>
+```
+
+### 4. Shopping Cart Interface
+```html
+<div class="cart-container">
+    <h2>Shopping Cart</h2>
+    <div class="cart-items">
+        <!-- Cart Item Template -->
+        <div class="cart-item">
+            <img src="{medication_image}" alt="{medication_name}">
+            <div class="item-details">
+                <h3>{medication_name}</h3>
+                <p class="price">${unit_price}</p>
+                <div class="quantity-controls">
+                    <button class="decrease">-</button>
+                    <input type="number" value="{quantity}" min="1">
+                    <button class="increase">+</button>
+                </div>
+            </div>
+            <button class="remove-item">Remove</button>
+        </div>
+    </div>
+    
+    <div class="cart-summary">
+        <div class="subtotal">
+            <span>Subtotal:</span>
+            <span>${subtotal}</span>
+        </div>
+        <div class="total">
+            <span>Total:</span>
+            <span>${total}</span>
+        </div>
+        <div class="cart-actions">
+            <button class="checkout-btn">Proceed to Checkout</button>
+            <button class="continue-shopping">Continue Shopping</button>
+        </div>
+    </div>
+</div>
+```
+
+### 5. Payment Form
+```html
+<div class="payment-form">
+    <h2>Payment Information</h2>
+    <form id="paymentForm">
+        <div class="payment-methods">
+            <label>
+                <input type="radio" name="paymentMethod" value="creditCard" checked>
+                Credit Card
+            </label>
+            <label>
+                <input type="radio" name="paymentMethod" value="mobileMoney">
+                Mobile Money
+            </label>
+        </div>
+
+        <div id="creditCardFields">
+            <div class="form-group">
+                <label for="cardNumber">Card Number</label>
+                <input type="text" id="cardNumber" pattern="[0-9]{16}" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="expiryDate">Expiry Date</label>
+                    <input type="text" id="expiryDate" placeholder="MM/YY" required>
+                </div>
+                <div class="form-group">
+                    <label for="cvv">CVV</label>
+                    <input type="text" id="cvv" pattern="[0-9]{3}" required>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileMoneyFields" style="display: none;">
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number</label>
+                <input type="tel" id="phoneNumber" required>
+            </div>
+        </div>
+
+        <div class="amount-display">
+            <h3>Total Amount: ${total}</h3>
+        </div>
+
+        <div class="payment-actions">
+            <button type="submit" class="pay-btn">Pay Now</button>
+            <button type="button" class="cancel-btn">Cancel</button>
+        </div>
+    </form>
+</div>
+```
+
+### 6. Success/Error Messages
+```html
+<!-- Success Message -->
+<div class="alert success">
+    <i class="fas fa-check-circle"></i>
+    <span>Operation completed successfully!</span>
+</div>
+
+<!-- Error Message -->
+<div class="alert error">
+    <i class="fas fa-times-circle"></i>
+    <span>An error occurred. Please try again.</span>
+</div>
+
+<!-- User Exists Warning -->
+<div class="alert warning">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>User already exists!</span>
+</div>
+```
+
+### 7. CSS Styling Examples
+```css
+/* Form Styling */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Alert Styling */
+.alert {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert.success {
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
+}
+
+.alert.error {
+    background-color: #ffebee;
+    border-left: 4px solid #f44336;
+}
+
+.alert.warning {
+    background-color: #fff3e0;
+    border-left: 4px solid #ff9800;
+}
+
+/* Cart Item Styling */
+.cart-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 1rem;
+}
+
+/* Inventory Status Styling */
+.stock-warning {
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    border-radius: 4px;
+}
+
+.low-stock {
+    background-color: #fff3e0;
+    border-left: 4px solid #ff9800;
+}
+
+.critical-stock {
+    background-color: #ffebee;
+    border-left: 4px solid #f44336;
+}
+```
+
+These code snippets demonstrate the UI components and their styling for the main functions of the system. Each component is designed to be responsive and user-friendly, with clear visual feedback for different states and actions.
