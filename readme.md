@@ -1,3 +1,158 @@
+# Pharmacy Management System Documentation
+
+## Overview
+The Pharmacy Management System is a web-based application designed to manage pharmacy operations, including user management, inventory control, prescription handling, and order processing. The system supports two types of users: Pharmacists and Clients (patients).
+
+## System Architecture
+
+### Technology Stack
+- Backend: PHP
+- Database: MySQL
+- Frontend: HTML, CSS, JavaScript
+- Server: XAMPP (Apache)
+
+### Directory Structure
+```
+├── config/             # Configuration files
+├── handlers/           # PHP request handlers
+├── js/                 # JavaScript files
+├── uploads/           # File uploads directory
+├── database/          # Database related files
+└── various PHP/HTML files for different functionalities
+```
+
+## Database Schema
+
+### Core Tables
+
+1. **clientUser**
+   - Primary key: phone
+   - Stores client/patient information
+   - Fields: username, email, address, city, state, country, password
+
+2. **pharmacistUser**
+   - Primary key: license_number
+   - Stores pharmacist information
+   - Fields: username, email, phone, address, pharmacy details, TIN
+
+3. **medicine**
+   - Primary key: ndc (National Drug Code)
+   - Stores medication inventory
+   - Fields: medication_name, category, stock, price, expiry_date
+
+4. **cart**
+   - Manages shopping cart functionality
+   - Links clients with medicines
+   - Tracks quantities
+
+5. **orders**
+   - Manages order processing
+   - Tracks order status and total amounts
+
+6. **order_items**
+   - Stores individual items in orders
+   - Links orders with medicines
+
+## Key Features
+
+### User Management
+- Separate registration and login for pharmacists and clients
+- Secure password hashing
+- Input validation and error handling
+
+### Pharmacist Features
+- Inventory management
+- Prescription handling
+- Order processing
+- Report generation
+- Stock management with reorder points
+
+### Client Features
+- Browse medications
+- Shopping cart functionality
+- Order placement and tracking
+- Prescription submission
+- Profile management
+
+## API Endpoints
+
+### Authentication
+- `/handlers/register.php`
+  - POST request
+  - Handles both pharmacist and client registration
+  - Validates required fields
+  - Checks for duplicate entries
+
+### Security Features
+- Password hashing using PHP's password_hash()
+- PDO prepared statements for SQL injection prevention
+- Input validation and sanitization
+- Error logging and handling
+
+## Setup Instructions
+
+1. **Prerequisites**
+   - XAMPP server
+   - PHP 7.0 or higher
+   - MySQL 5.7 or higher
+
+2. **Installation**
+   - Clone the repository to XAMPP's htdocs directory
+   - Import the database schema from `database.sql`
+   - Configure database connection in `config/db.php`
+   - Ensure proper permissions for the uploads directory
+
+3. **Configuration**
+   - Update database credentials in `config/db.php`
+   - Configure error reporting settings
+   - Set up file upload limits if needed
+
+## Error Handling
+
+The system implements comprehensive error handling:
+- Database connection errors
+- Input validation errors
+- Duplicate entry checks
+- File upload errors
+- API response formatting
+
+## Security Considerations
+
+1. **Data Protection**
+   - Passwords are hashed using PASSWORD_DEFAULT
+   - Sensitive data is validated and sanitized
+   - SQL injection prevention using prepared statements
+
+2. **Access Control**
+   - Role-based access control
+   - Session management
+   - Input validation
+
+## Maintenance
+
+### Regular Tasks
+- Monitor error logs
+- Check database performance
+- Update inventory levels
+- Review expired medications
+- Backup database regularly
+
+### Troubleshooting
+- Check error logs in PHP error log
+- Verify database connectivity
+- Ensure proper file permissions
+- Validate input data
+
+## Future Enhancements
+- Implement real-time inventory updates
+- Add payment gateway integration
+- Enhance reporting capabilities
+- Implement email notifications
+- Add mobile responsiveness improvements
+
+## Support
+For technical support or questions, please contact the system administrator.
+
 ### registter ####
 when check box is false return the we should create the insert all data in table clientUser where we should use the primary key is the phone number. all inputs must valid and are required 
 
